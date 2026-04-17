@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import Select from 'react-select'
-import api from '../../../api/api'
-import { toast } from 'react-toastify'
+import { useEffect, useState } from "react";
+import Select from "react-select";
+import api from "../../../api/api";
+import { toast } from "react-toastify";
 
 export default function ModalOrcamento({
   show,
@@ -11,28 +11,28 @@ export default function ModalOrcamento({
   clientes,
   limparCarrinho,
 }) {
-  const [clienteSelecionado, setClienteSelecionado] = useState()
-  const [observacao, setObservacao] = useState('')
-  const [tipoPagamento, setTipoPagamento] = useState()
-  const [parcelas, setParcelas] = useState(1)
-  const [entrada, setEntrada] = useState(0)
-  const [vendedor, setVendedor] = useState()
-  const [desconto, setDesconto] = useState(0)
-  const [prazo, setPrazo] = useState(0)
+  const [clienteSelecionado, setClienteSelecionado] = useState();
+  const [observacao, setObservacao] = useState("");
+  const [tipoPagamento, setTipoPagamento] = useState();
+  const [parcelas, setParcelas] = useState(1);
+  const [entrada, setEntrada] = useState(0);
+  const [vendedor, setVendedor] = useState();
+  const [desconto, setDesconto] = useState(0);
+  const [prazo, setPrazo] = useState(0);
   useEffect(() => {
     if (show) {
-      document.body.classList.add('overflow-hidden')
+      document.body.classList.add("overflow-hidden");
     } else {
-      document.body.classList.remove('overflow-hidden')
+      document.body.classList.remove("overflow-hidden");
     }
 
     return () => {
-      document.body.classList.remove('overflow-hidden')
-    }
-  }, [show])
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [show]);
   const criarPedido = async () => {
     try {
-      const response = await api.post('pedidos/create', {
+      const response = await api.post("pedidos/create", {
         cliente: clienteSelecionado?.value,
         valorBruto: subTotal,
         valorLiquido: total,
@@ -45,73 +45,73 @@ export default function ModalOrcamento({
         entrada: entrada,
         num_parcelas: parcelas,
         valor_parcelas: valorParcelas,
-      })
-      toast.success('Pedido registrado com sucesso')
-      setClienteSelecionado(null)
-      setVendedor(null)
-      setEntrada(null)
-      setParcelas(null)
-      setTipoPagamento(null)
-      setObservacao(null)
-      onClose()
-      limparCarrinho()
+      });
+      toast.success("Pedido registrado com sucesso");
+      setClienteSelecionado(null);
+      setVendedor(null);
+      setEntrada(null);
+      setParcelas(null);
+      setTipoPagamento(null);
+      setObservacao(null);
+      onClose();
+      limparCarrinho();
     } catch (error) {
-      toast.error(error?.response?.data?.error || 'Erro ao cadastrar cliente')
+      toast.error(error?.response?.data?.error || "Erro ao cadastrar cliente");
     }
-  }
-  const total = subTotal - subTotal * (desconto / 100)
+  };
+  const total = subTotal - subTotal * (desconto / 100);
 
-  const valorEntrada = total * (entrada / 100)
+  const valorEntrada = total * (entrada / 100);
 
-  const valorParcelas = (total - valorEntrada) / parcelas
+  const valorParcelas = (total - valorEntrada) / parcelas;
 
-  if (!show) return null
+  if (!show) return null;
   const options = clientes.map((m) => ({
     value: m.id,
-    label: `${m.nome} ${' '} - ${' '} ${m.email} `,
-  }))
+    label: `${m.nome} ${" "} - ${" "} ${m.email} `,
+  }));
   const optionsVendedor = [
-    { value: 'Benedito Salles', label: 'Benedito Salles' },
-    { value: 'Jhonatan Barbosa', label: 'Jhonatan Barbosa' },
-    { value: 'Dayane Geocondo', label: 'Dayane Geocondo' },
-    { value: 'João Henrique', label: 'João Henrique' },
-    { value: 'Murilo Mansano', label: 'Murilo Mansano' },
-    { value: 'Fábio Furtado', label: 'Fábio Furtado' },
-    { value: 'Gabriel Wesley', label: 'Gabriel Wesley' },
-  ]
+    { value: "Benedito Salles", label: "Benedito Salles" },
+    { value: "Jhonatan Barbosa", label: "Jhonatan Barbosa" },
+    { value: "Dayane Geocondo", label: "Dayane Geocondo" },
+    { value: "João Henrique", label: "João Henrique" },
+    { value: "Murilo Mansano", label: "Murilo Mansano" },
+    { value: "Fábio Furtado", label: "Fábio Furtado" },
+    { value: "Gabriel Wesley", label: "Gabriel Wesley" },
+  ];
   const optionsPagamento = [
-    { value: 'À vista', label: 'À vista' },
-    { value: 'Parcelamento', label: 'Parcelamento' },
-    { value: 'Financiamento', label: 'Financiamento' },
-  ]
+    { value: "À vista", label: "À vista" },
+    { value: "Parcelamento", label: "Parcelamento" },
+    { value: "Financiamento", label: "Financiamento" },
+  ];
   const styles = {
     control: (base, state) => ({
       ...base,
-      width: '100%',
-      height: '2.5rem', // h-10
-      borderRadius: '0.75rem', // rounded-xl
-      borderColor: '#E2E8F0', // slate-200
-      backgroundColor: '#FFFFFF', // bg-white
-      fontSize: '0.875rem', // text-sm
-      outline: 'none',
-      transition: 'all 0.2s ease',
+      width: "100%",
+      height: "2.5rem", // h-10
+      borderRadius: "0.75rem", // rounded-xl
+      borderColor: "#E2E8F0", // slate-200
+      backgroundColor: "#FFFFFF", // bg-white
+      fontSize: "0.875rem", // text-sm
+      outline: "none",
+      transition: "all 0.2s ease",
       boxShadow: state.isFocused
-        ? '0 0 0 2px rgba(59, 130, 246, 0.2)' // ring-brand/20 + focus:ring-2
-        : 'none',
-      '&:hover': {
-        borderColor: '#E2E8F0',
+        ? "0 0 0 2px rgba(59, 130, 246, 0.2)" // ring-brand/20 + focus:ring-2
+        : "none",
+      "&:hover": {
+        borderColor: "#E2E8F0",
       },
     }),
 
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isFocused ? '#F3F4F6' : '#FFFFFF',
-      color: '#111827',
-      '&:active': {
-        backgroundColor: '#E5E7EB',
+      backgroundColor: state.isFocused ? "#F3F4F6" : "#FFFFFF",
+      color: "#111827",
+      "&:active": {
+        backgroundColor: "#E5E7EB",
       },
     }),
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center ">
@@ -159,9 +159,9 @@ export default function ModalOrcamento({
                     </div>
 
                     <div className="text-sm font-semibold text-gray-700">
-                      {(item.valor * item.quantidade).toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
+                      {(item.valor * item.quantidade).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
                       })}
                     </div>
                   </div>
@@ -178,7 +178,22 @@ export default function ModalOrcamento({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Cliente
               </h3>
-
+              <div className="mt-3 max-h-72 space-y-3">
+                <div className="space-y-1">
+                  <Select
+                    options={options}
+                    placeholder={"Selecione o cliente"}
+                    required
+                    styles={styles}
+                    value={options.find(
+                      (option) => option.value === clienteSelecionado?.id,
+                    )}
+                    onChange={(e) => {
+                      setClienteSelecionado(e);
+                    }}
+                  />
+                </div>
+              </div>
               <div className="mt-3 max-h-72 space-y-3">
                 <div className="space-y-1"></div>
               </div>
@@ -191,14 +206,14 @@ export default function ModalOrcamento({
                 <div className="space-y-1">
                   <Select
                     options={optionsVendedor}
-                    placeholder={'Selecione o cliente'}
+                    placeholder={"Selecione o cliente"}
                     required
                     styles={styles}
                     value={optionsVendedor.find(
-                      (option) => option.value === vendedor?.value
+                      (option) => option.value === vendedor?.value,
                     )}
                     onChange={(e) => {
-                      setVendedor(e)
+                      setVendedor(e);
                     }}
                   />
                 </div>
@@ -213,14 +228,14 @@ export default function ModalOrcamento({
                 <div className="space-y-1">
                   <Select
                     options={optionsPagamento}
-                    placeholder={'Selecione o cliente'}
+                    placeholder={"Selecione o cliente"}
                     required
                     styles={styles}
                     value={optionsPagamento.find(
-                      (option) => option.value === tipoPagamento?.value
+                      (option) => option.value === tipoPagamento?.value,
                     )}
                     onChange={(e) => {
-                      setTipoPagamento(e)
+                      setTipoPagamento(e);
                     }}
                   />
                 </div>
@@ -273,9 +288,9 @@ export default function ModalOrcamento({
             <div className="flex items-center justify-between text-sm text-gray-600">
               <span> Subtotal</span>
               <span>
-                {subTotal.toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
+                {subTotal.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
                 })}
               </span>
             </div>
@@ -283,30 +298,30 @@ export default function ModalOrcamento({
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Desconto</span>
               <span>
-                {' '}
+                {" "}
                 <input
                   className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition "
                   type="number"
                   value={desconto}
                   onChange={(e) => setDesconto(Number(e.target.value))}
-                ></input>{' '}
+                ></input>{" "}
                 %
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Entrada</span>
               <span>
-                {valorEntrada.toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
+                {valorEntrada.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
                 })}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Parcelas</span>
               <span>
-                {parcelas || 1}x de{' '}
-                {valorParcelas?.toLocaleString('pt-BR') || total}
+                {parcelas || 1}x de{" "}
+                {valorParcelas?.toLocaleString("pt-BR") || total}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
@@ -317,7 +332,7 @@ export default function ModalOrcamento({
                   type="number"
                   value={prazo}
                   onChange={(e) => setPrazo(Number(e.target.value))}
-                ></input>{' '}
+                ></input>{" "}
                 dias
               </span>
             </div>
@@ -325,9 +340,9 @@ export default function ModalOrcamento({
             <div className="mt-3 flex items-center justify-between border-t pt-3 text-base font-semibold text-gray-900">
               <span>Total</span>
               <span>
-                {total.toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
+                {total.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
                 })}
               </span>
             </div>
@@ -351,5 +366,5 @@ export default function ModalOrcamento({
         </div>
       </div>
     </div>
-  )
+  );
 }

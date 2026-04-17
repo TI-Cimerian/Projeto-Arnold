@@ -1,25 +1,25 @@
-import { useEffect } from 'react'
-import api from '../../api/api'
-import { Link, useParams } from 'react-router-dom'
-import { useState } from 'react'
-import { toast } from 'react-toastify'
+import { useEffect } from "react";
+import api from "../../api/api";
+import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 function Maquina() {
-  const { id } = useParams()
-  const [maquina, setMaquina] = useState()
+  const { id } = useParams();
+  const [maquina, setMaquina] = useState();
   useEffect(() => {
     const fetchMaquina = async () => {
       try {
-        const response = await api.get(`/maquinas/${id}`)
+        const response = await api.get(`/maquinas/${id}`);
 
-        console.log(response.data)
-        setMaquina(response.data)
+        console.log(response.data);
+        setMaquina(response.data);
       } catch (error) {
-        toast.error(error?.response?.data?.error)
+        toast.error(error?.response?.data?.error);
       }
-    }
-    fetchMaquina()
-  }, [id])
+    };
+    fetchMaquina();
+  }, [id]);
   return (
     <div className="mt-24 space-y-10 max-w-6xl mx-auto px-4 pb-16">
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -76,56 +76,56 @@ function Maquina() {
             <ul className="flex flex-col w-full space-y-8">
               <li className="flex flex-row items-center justify-between py-4 border-b border-gray-200 last:border-0">
                 <p className="text-sm md:text-lg font-medium text-gray-700">
-                  {' '}
+                  {" "}
                   Comprimento
                 </p>
                 <p className="text-md text-gray-600">
-                  {Number(maquina.comprimento).toLocaleString('pt-BR', {
+                  {Number(maquina?.comprimento).toLocaleString("pt-BR", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  })}{' '}
+                  })}{" "}
                   m
                 </p>
               </li>
               <li className="flex flex-row items-center justify-between py-4 border-b border-gray-200 last:border-0">
-                {' '}
+                {" "}
                 <p className="text-sm md:text-lg font-medium text-gray-700">
-                  {' '}
+                  {" "}
                   Largura
                 </p>
                 <p className="text-md text-gray-600">
-                  {Number(maquina.largura).toLocaleString('pt-BR', {
+                  {Number(maquina?.largura).toLocaleString("pt-BR", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  })}{' '}
+                  })}{" "}
                   m
                 </p>
               </li>
               <li className="flex flex-row items-center justify-between py-4 border-b border-gray-200 last:border-0">
-                {' '}
+                {" "}
                 <p className="text-sm md:text-lg font-medium text-gray-700">
-                  {' '}
+                  {" "}
                   Altura
                 </p>
                 <p className="text-md text-gray-600">
-                  {Number(maquina.altura).toLocaleString('pt-BR', {
+                  {Number(maquina?.altura).toLocaleString("pt-BR", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  })}{' '}
+                  })}{" "}
                   m
                 </p>
               </li>
               <li className="flex flex-row items-center justify-between py-4 border-b border-gray-200 last:border-0">
-                {' '}
+                {" "}
                 <p className="text-sm md:text-lg font-medium text-gray-700">
-                  {' '}
+                  {" "}
                   Peso
                 </p>
                 <p className="text-md text-gray-600">
-                  {Number(maquina.peso).toLocaleString('pt-BR', {
+                  {Number(maquina?.peso).toLocaleString("pt-BR", {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0,
-                  })}{' '}
+                  })}{" "}
                   kg
                 </p>
               </li>
@@ -134,6 +134,6 @@ function Maquina() {
         </section>
       </div>
     </div>
-  )
+  );
 }
-export default Maquina
+export default Maquina;

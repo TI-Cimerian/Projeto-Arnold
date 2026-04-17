@@ -1,94 +1,94 @@
-import { useEffect, useState } from 'react'
-import api from '../../api/api'
-import ModalOrcamento from '../components/common/ModalOrcamento'
-import { NavLink } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import api from "../../api/api";
+import ModalOrcamento from "../components/common/ModalOrcamento";
+import { NavLink } from "react-router-dom";
 
 function Catalog() {
-  const [clientes, setClientes] = useState([])
-  const [maquinas, setMaquinas] = useState([])
-  const [carrinho, setCarrinho] = useState([])
-  const [isModalOpen, setModalOpen] = useState(false)
-  const [categoria, setCategoria] = useState('todas')
-  const [subCategoria, setsubCategoria] = useState('todas')
+  const [clientes, setClientes] = useState([]);
+  const [maquinas, setMaquinas] = useState([]);
+  const [carrinho, setCarrinho] = useState([]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [categoria, setCategoria] = useState("todas");
+  const [subCategoria, setsubCategoria] = useState("todas");
 
   useEffect(() => {
     const fetchMaquinas = async () => {
-      const response = await api.get('/maquinas', {
+      const response = await api.get("/maquinas", {
         params: { opcaoCategoria: categoria, opcaoSubCategoria: subCategoria },
-      })
+      });
       const maquinasFormatadas = response.data.map((maquina) => ({
         ...maquina,
         valor: Number(maquina.valor),
-      }))
-      setMaquinas(maquinasFormatadas)
-    }
+      }));
+      setMaquinas(maquinasFormatadas);
+    };
     const fetchClientes = async () => {
-      const response = await api.get('/clientes')
-      setClientes(response)
-    }
-    ;(fetchMaquinas(), fetchClientes())
-  }, [categoria, subCategoria, clientes])
+      const response = await api.get("/clientes");
+      setClientes(response);
+    };
+    (fetchMaquinas(), fetchClientes());
+  }, [categoria, subCategoria, clientes]);
 
   const subTotal = carrinho.reduce(
     (total, item) => total + item.quantidade * item.valor,
-    0
-  )
+    0,
+  );
 
   function addiItensToCart(item) {
-    if (!item) return
+    if (!item) return;
 
     setCarrinho((prev) => {
-      const itemExistente = prev.find((produto) => produto.id === item.id)
+      const itemExistente = prev.find((produto) => produto.id === item.id);
 
       if (itemExistente) {
         return prev.map((produto) =>
           produto.id === item.id
             ? { ...produto, quantidade: produto.quantidade + 1 }
-            : produto
-        )
+            : produto,
+        );
       }
-      return [...prev, { ...item, quantidade: 1 }]
-    })
+      return [...prev, { ...item, quantidade: 1 }];
+    });
   }
 
   function removeItensFromCart(id) {
     setCarrinho((prev) =>
       prev
         .map((item) =>
-          item.id === id ? { ...item, quantidade: item.quantidade - 1 } : item
+          item.id === id ? { ...item, quantidade: item.quantidade - 1 } : item,
         )
-        .filter((item) => item.quantidade > 0)
-    )
+        .filter((item) => item.quantidade > 0),
+    );
   }
   function removeItem(id) {
-    setCarrinho((prev) => prev.filter((item) => item.id !== id))
+    setCarrinho((prev) => prev.filter((item) => item.id !== id));
   }
   function clearCartItens() {
-    setCarrinho([])
-    setDesconto(0)
+    setCarrinho([]);
+    setDesconto(0);
   }
 
   function selectCategoria(opcao) {
-    setCategoria(opcao)
+    setCategoria(opcao);
   }
   function selectsubCategoria(opcao) {
-    setsubCategoria(opcao)
+    setsubCategoria(opcao);
   }
 
   const formatarCategoria = (categoria) => {
     switch (categoria) {
-      case 'articulados':
-        return 'ARTICULADOS'
-      case 'linha-cardio':
-        return 'CARDIO'
-      case 'bateria-de-pesos':
-        return 'BATERIA DE PESOS'
-      case 'bancos':
-        return 'BANCOS'
-      case 'acessórios':
-        return 'ACESSÓRIOS'
+      case "articulados":
+        return "ARTICULADOS";
+      case "linha-cardio":
+        return "CARDIO";
+      case "bateria-de-pesos":
+        return "BATERIA DE PESOS";
+      case "bancos":
+        return "BANCOS";
+      case "acessórios":
+        return "ACESSÓRIOS";
     }
-  }
+  };
   return (
     <>
       <ModalOrcamento
@@ -155,61 +155,61 @@ function Catalog() {
                                md:flex items-center gap-2 overflow-x-auto mt-2 md:mt-0 -m-3 md:-m-0 "
               >
                 <button
-                  onClick={() => selectCategoria('todas')}
+                  onClick={() => selectCategoria("todas")}
                   className={
-                    categoria === 'todas'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    categoria === "todas"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Todas
                 </button>
                 <button
-                  onClick={() => selectCategoria('articulados')}
+                  onClick={() => selectCategoria("articulados")}
                   className={
-                    categoria === 'articulados'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    categoria === "articulados"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Articulados
                 </button>
                 <button
-                  onClick={() => selectCategoria('bateria-de-pesos')}
+                  onClick={() => selectCategoria("bateria-de-pesos")}
                   className={
-                    categoria === 'bateria-de-pesos'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    categoria === "bateria-de-pesos"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Bateria de pesos
                 </button>
                 <button
-                  onClick={() => selectCategoria('linha-cardio')}
+                  onClick={() => selectCategoria("linha-cardio")}
                   className={
-                    categoria === 'linha-cardio'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    categoria === "linha-cardio"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Cardio
                 </button>
                 <button
-                  onClick={() => selectCategoria('bancos')}
+                  onClick={() => selectCategoria("bancos")}
                   className={
-                    categoria === 'bancos'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    categoria === "bancos"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Bancos
                 </button>
                 <button
-                  onClick={() => selectCategoria('acessórios')}
+                  onClick={() => selectCategoria("acessórios")}
                   className={
-                    categoria === 'acessórios'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    categoria === "acessórios"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Acessórios
@@ -230,82 +230,82 @@ function Catalog() {
                                md:flex items-center gap-2 overflow-x-auto mt-2 md:mt-0 -m-3 md:-m-0 "
               >
                 <button
-                  onClick={() => selectsubCategoria('todas')}
+                  onClick={() => selectsubCategoria("todas")}
                   className={
-                    subCategoria === 'todas'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "todas"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Todas
                 </button>
                 <button
-                  onClick={() => selectsubCategoria('peito')}
+                  onClick={() => selectsubCategoria("peito")}
                   className={
-                    subCategoria === 'peito'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "peito"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Peito
                 </button>
                 <button
-                  onClick={() => selectsubCategoria('costas')}
+                  onClick={() => selectsubCategoria("costas")}
                   className={
-                    subCategoria === 'costas'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "costas"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Costas
                 </button>
 
                 <button
-                  onClick={() => selectsubCategoria('ombros')}
+                  onClick={() => selectsubCategoria("ombros")}
                   className={
-                    subCategoria === 'ombros'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "ombros"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Ombros
                 </button>
                 <button
-                  onClick={() => selectsubCategoria('pernas')}
+                  onClick={() => selectsubCategoria("pernas")}
                   className={
-                    subCategoria === 'pernas'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "pernas"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Pernas
                 </button>
                 <button
-                  onClick={() => selectsubCategoria('glúteos')}
+                  onClick={() => selectsubCategoria("glúteos")}
                   className={
-                    subCategoria === 'glúteos'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "glúteos"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Glúteos
                 </button>
                 <button
-                  onClick={() => selectsubCategoria('braços')}
+                  onClick={() => selectsubCategoria("braços")}
                   className={
-                    subCategoria === 'braços'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "braços"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Braços
                 </button>
                 <button
-                  onClick={() => selectsubCategoria('core')}
+                  onClick={() => selectsubCategoria("core")}
                   className={
-                    subCategoria === 'core'
-                      ? 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white'
-                      : 'whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black'
+                    subCategoria === "core"
+                      ? "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-black bg-black text-white"
+                      : "whitespace-nowrap rounded-full border px-4 py-2 text-sm transition border-gray-200 text-gray-700 hover:border-black/40 hover:text-black"
                   }
                 >
                   Core
@@ -339,9 +339,9 @@ function Catalog() {
                           {maquina.sub_categoria}
                         </p>
                         <div className="hidden sm:flex text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
-                          {maquina.valor.toLocaleString('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
+                          {maquina.valor.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
                           })}
                         </div>
                       </div>
@@ -349,6 +349,7 @@ function Catalog() {
                     <div className="mt-auto flex flex-col items-center gap-2">
                       <NavLink
                         to={`maquina/${maquina.id}`}
+                        target="_blank"
                         className="text-sm font-medium text-black underline-offset-4 hover:underline"
                       >
                         Ver detalhes
@@ -356,7 +357,7 @@ function Catalog() {
 
                       <button
                         onClick={() => {
-                          addiItensToCart(maquina)
+                          addiItensToCart(maquina);
                         }}
                         className="mb-1 rounded-xl border px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
                       >
@@ -381,7 +382,7 @@ function Catalog() {
               {carrinho.length > 0 ? (
                 <button
                   onClick={() => {
-                    clearCartItens()
+                    clearCartItens();
                   }}
                   className="text-xs font-semibold text-red-600 hover:text-red-700"
                 >
@@ -415,7 +416,7 @@ function Catalog() {
                         </div>
                         <button
                           onClick={() => {
-                            removeItem(item.id)
+                            removeItem(item.id);
                           }}
                           className="text-xs mt-2 font-semibold text-red-600 hover:text-red-700"
                         >
@@ -442,7 +443,7 @@ function Catalog() {
                         <div className="flex items-center gap-2 rounded-lg border px-2 py-1">
                           <button
                             onClick={() => {
-                              removeItensFromCart(item.id)
+                              removeItensFromCart(item.id);
                             }}
                             className="px-2 text-lg leading-none text-gray-600 transition hover:text-black"
                           >
@@ -453,7 +454,7 @@ function Catalog() {
                           </span>
                           <button
                             onClick={() => {
-                              addiItensToCart(item)
+                              addiItensToCart(item);
                             }}
                             className="px-2 text-lg leading-none text-gray-600 transition hover:text-black"
                           >
@@ -482,9 +483,9 @@ function Catalog() {
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
                 <span>
-                  {subTotal.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
+                  {subTotal.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
                   })}
                 </span>
               </div>
@@ -534,7 +535,7 @@ function Catalog() {
         </section>
       </div>
     </>
-  )
+  );
 }
 
-export default Catalog
+export default Catalog;
