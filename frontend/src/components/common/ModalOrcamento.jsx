@@ -19,6 +19,7 @@ export default function ModalOrcamento({
   const [vendedor, setVendedor] = useState();
   const [desconto, setDesconto] = useState(0);
   const [prazo, setPrazo] = useState(0);
+
   useEffect(() => {
     if (show) {
       document.body.classList.add("overflow-hidden");
@@ -30,6 +31,17 @@ export default function ModalOrcamento({
       document.body.classList.remove("overflow-hidden");
     };
   }, [show]);
+
+  useEffect(() => {
+    if (tipoPagamento?.value === "À vista") {
+      setParcelas(1);
+    }
+  }, [tipoPagamento]);
+
+  const total = subTotal - subTotal * (desconto / 100);
+  const valorEntrada = total * (Number(entrada) / 100);
+  const valorParcelas = (total - valorEntrada) / Number(parcelas || 1);
+
   const criarPedido = async () => {
     try {
       const response = await api.post("pedidos/create", {
@@ -43,33 +55,32 @@ export default function ModalOrcamento({
         prazo: prazo,
         tipo_pagamento: tipoPagamento?.value,
         entrada: entrada,
-        num_parcelas: parcelas,
-        valor_parcelas: valorParcelas,
+        num_parcelas: tipoPagamento?.value === "À vista" ? 1 : parcelas,
+        valor_parcelas:
+          tipoPagamento?.value === "À vista" ? total : valorParcelas,
       });
+
       toast.success("Pedido registrado com sucesso");
       setClienteSelecionado(null);
       setVendedor(null);
-      setEntrada(null);
-      setParcelas(null);
+      setEntrada(0);
+      setParcelas(1);
       setTipoPagamento(null);
-      setObservacao(null);
+      setObservacao("");
       onClose();
       limparCarrinho();
     } catch (error) {
       toast.error(error?.response?.data?.error || "Erro ao cadastrar cliente");
     }
   };
-  const total = subTotal - subTotal * (desconto / 100);
-
-  const valorEntrada = total * (entrada / 100);
-
-  const valorParcelas = (total - valorEntrada) / parcelas;
 
   if (!show) return null;
+
   const options = clientes.map((m) => ({
     value: m.id,
-    label: `${m.nome} ${" "} - ${" "} ${m.email} `,
+    label: `${m.nome} - ${m.email}`,
   }));
+
   const optionsVendedor = [
     { value: "Benedito Salles", label: "Benedito Salles" },
     { value: "Jhonatan Barbosa", label: "Jhonatan Barbosa" },
@@ -79,25 +90,25 @@ export default function ModalOrcamento({
     { value: "Fábio Furtado", label: "Fábio Furtado" },
     { value: "Gabriel Wesley", label: "Gabriel Wesley" },
   ];
+
   const optionsPagamento = [
     { value: "À vista", label: "À vista" },
     { value: "Parcelamento", label: "Parcelamento" },
     { value: "Financiamento", label: "Financiamento" },
   ];
+
   const styles = {
     control: (base, state) => ({
       ...base,
       width: "100%",
-      height: "2.5rem", // h-10
-      borderRadius: "0.75rem", // rounded-xl
-      borderColor: "#E2E8F0", // slate-200
-      backgroundColor: "#FFFFFF", // bg-white
-      fontSize: "0.875rem", // text-sm
+      height: "2.5rem",
+      borderRadius: "0.75rem",
+      borderColor: "#E2E8F0",
+      backgroundColor: "#FFFFFF",
+      fontSize: "0.875rem",
       outline: "none",
       transition: "all 0.2s ease",
-      boxShadow: state.isFocused
-        ? "0 0 0 2px rgba(59, 130, 246, 0.2)" // ring-brand/20 + focus:ring-2
-        : "none",
+      boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.2)" : "none",
       "&:hover": {
         borderColor: "#E2E8F0",
       },
@@ -173,6 +184,7 @@ export default function ModalOrcamento({
               )}
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-5">
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
@@ -194,10 +206,8 @@ export default function ModalOrcamento({
                   />
                 </div>
               </div>
-              <div className="mt-3 max-h-72 space-y-3">
-                <div className="space-y-1"></div>
-              </div>
             </div>
+
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Vendedor
@@ -258,16 +268,19 @@ export default function ModalOrcamento({
                 </div>
               </div>
             </div>
+
             <div className="space-y-1 w-full">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Número de parcelas
               </h3>
               <input
                 type="number"
-                className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
+                min={1}
+                className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500"
                 placeholder="Descrição"
-                value={parcelas}
-                onChange={(e) => setParcelas(e.target.value)}
+                value={tipoPagamento?.value === "À vista" ? 1 : parcelas}
+                disabled={tipoPagamento?.value === "À vista"}
+                onChange={(e) => setParcelas(Number(e.target.value))}
               />
             </div>
 
@@ -286,7 +299,7 @@ export default function ModalOrcamento({
 
           <div className="rounded-xl bg-gray-50 p-4">
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span> Subtotal</span>
+              <span>Subtotal</span>
               <span>
                 {subTotal.toLocaleString("pt-BR", {
                   style: "currency",
@@ -298,16 +311,16 @@ export default function ModalOrcamento({
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Desconto</span>
               <span>
-                {" "}
                 <input
-                  className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition "
+                  className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition"
                   type="number"
                   value={desconto}
                   onChange={(e) => setDesconto(Number(e.target.value))}
-                ></input>{" "}
+                />{" "}
                 %
               </span>
             </div>
+
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Entrada</span>
               <span>
@@ -317,22 +330,30 @@ export default function ModalOrcamento({
                 })}
               </span>
             </div>
+
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Parcelas</span>
               <span>
-                {parcelas || 1}x de{" "}
-                {valorParcelas?.toLocaleString("pt-BR") || total}
+                {tipoPagamento?.value === "À vista" ? 1 : parcelas || 1}x de{" "}
+                {(tipoPagamento?.value === "À vista"
+                  ? total
+                  : valorParcelas
+                ).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
               </span>
             </div>
+
             <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
               <span>Prazo</span>
               <span>
                 <input
-                  className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition "
+                  className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition"
                   type="number"
                   value={prazo}
                   onChange={(e) => setPrazo(Number(e.target.value))}
-                ></input>{" "}
+                />{" "}
                 dias
               </span>
             </div>

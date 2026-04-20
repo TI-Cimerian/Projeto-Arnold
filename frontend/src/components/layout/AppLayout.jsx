@@ -8,8 +8,6 @@ export function AppLayout() {
     <div className="flex min-h-screen flex-col ">
       <Header />
       <main className="mx-auto w-full flex-1 px-2 pt-6">
-        <div className="bg-black text-white p-4">TESTE</div>
-
         <Outlet />
       </main>
       <Footer />

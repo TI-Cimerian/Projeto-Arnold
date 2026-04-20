@@ -1,10 +1,10 @@
-import CimerianLogo from '../../assets/logo-cimerian.webp'
-import { NavLink } from 'react-router-dom'
-import { useState } from 'react'
-import ModalCliente from '../common/ModalCliente'
+import CimerianLogo from "../../assets/logo-cimerian.webp";
+import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import ModalCliente from "../common/ModalCliente";
 
 export default function Header() {
-  const [isModalOpen, setModalOpen] = useState(false)
+  const [isModalOpen, setModalOpen] = useState(false);
 
   return (
     <header className="fixed top-0 z-40 w-full border-b border-white/10 bg-black shadow-md">
@@ -38,5 +38,5 @@ export default function Header() {
 
       <ModalCliente show={isModalOpen} onClose={() => setModalOpen(false)} />
     </header>
-  )
+  );
 }

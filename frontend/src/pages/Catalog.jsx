@@ -10,24 +10,42 @@ function Catalog() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [categoria, setCategoria] = useState("todas");
   const [subCategoria, setsubCategoria] = useState("todas");
+  const [limit, setLimit] = useState(200);
+  const [pages, setPages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchMaquinas = async () => {
       const response = await api.get("/maquinas", {
-        params: { opcaoCategoria: categoria, opcaoSubCategoria: subCategoria },
+        params: {
+          page: currentPage,
+          limit,
+          searchTerm,
+          opcaoCategoria: categoria,
+          opcaoSubCategoria: subCategoria,
+        },
       });
+
       const maquinasFormatadas = response.data.map((maquina) => ({
         ...maquina,
         valor: Number(maquina.valor),
       }));
+
       setMaquinas(maquinasFormatadas);
     };
+
+    fetchMaquinas();
+  }, [categoria, subCategoria, currentPage, limit, searchTerm]);
+
+  useEffect(() => {
     const fetchClientes = async () => {
       const response = await api.get("/clientes");
       setClientes(response);
     };
-    (fetchMaquinas(), fetchClientes());
-  }, [categoria, subCategoria, clientes]);
+
+    fetchClientes();
+  }, []);
 
   const subTotal = carrinho.reduce(
     (total, item) => total + item.quantidade * item.valor,
@@ -140,6 +158,33 @@ function Catalog() {
         <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <div className="space-y-4">
             <div className="flex justify-around md:flex-col md:justify-normal md:space-y-3">
+              <div className="relative mt-16 lg:mt-0 w-full min-w-[280px] max-w-[280px] lg:max-w-[360px] hidden lg:flex">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  aria-hidden="true"
+                >
+                  <path d="m21 21-4.34-4.34"></path>
+                  <circle cx="11" cy="11" r="8"></circle>
+                </svg>
+                <input
+                  type="text"
+                  name=""
+                  placeholder="Buscar equipamentos"
+                  id=""
+                  className="w-full rounded-full border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
               <div className="flex flex-col relative w-fit space-y-2">
                 <div className="flex flex-row items-center cursor-pointer">
                   <p className="px-1 text-[0.9rem] md:text-xs uppercase tracking-wide text-gray-400">
