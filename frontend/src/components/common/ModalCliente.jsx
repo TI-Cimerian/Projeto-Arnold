@@ -1,80 +1,83 @@
-import { useEffect, useState } from 'react'
-import Select from 'react-select'
-import api from '../../../api/api'
-import { toast } from 'react-toastify'
-export default function ModalCliente({ show, onClose }) {
+import { useEffect, useState } from "react";
+import Select from "react-select";
+import api from "../../../api/api";
+import { toast } from "react-toastify";
+export default function ModalCliente({ show, onClose, onClienteCriado }) {
   useEffect(() => {
     if (show) {
-      document.body.classList.add('overflow-hidden')
+      document.body.classList.add("overflow-hidden");
     } else {
-      document.body.classList.remove('overflow-hidden')
+      document.body.classList.remove("overflow-hidden");
     }
 
     return () => {
-      document.body.classList.remove('overflow-hidden')
-    }
-  }, [show])
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [show]);
   const [formData, setFormData] = useState({
-    nomeCompleto: '',
-    tipoCliente: '',
-    razaoSocial: '',
-    cnpj: '',
-    cpf: '',
-    email: '',
-    telefone: '',
-    rua: '',
-    bairro: '',
-    numero: '',
-    cidade: '',
-    estado: '',
-    pais: '',
-  })
+    nomeCompleto: "",
+    tipoCliente: "",
+    razaoSocial: "",
+    cnpj: "",
+    cpf: "",
+    email: "",
+    telefone: "",
+    rua: "",
+    bairro: "",
+    numero: "",
+    cidade: "",
+    estado: "",
+    pais: "",
+  });
 
-  if (!show) return null
+  if (!show) return null;
 
   const styles = {
     control: (base, state) => ({
       ...base,
-      width: '100%',
-      height: '2.5rem', // h-10
-      borderRadius: '0.75rem', // rounded-xl
-      borderColor: '#E2E8F0', // slate-200
-      backgroundColor: '#FFFFFF', // bg-white
-      fontSize: '0.875rem', // text-sm
-      outline: 'none',
-      transition: 'all 0.2s ease',
+      width: "100%",
+      height: "2.5rem", // h-10
+      borderRadius: "0.75rem", // rounded-xl
+      borderColor: "#E2E8F0", // slate-200
+      backgroundColor: "#FFFFFF", // bg-white
+      fontSize: "0.875rem", // text-sm
+      outline: "none",
+      transition: "all 0.2s ease",
       boxShadow: state.isFocused
-        ? '0 0 0 2px rgba(59, 130, 246, 0.2)' // ring-brand/20 + focus:ring-2
-        : 'none',
-      '&:hover': {
-        borderColor: '#E2E8F0',
+        ? "0 0 0 2px rgba(59, 130, 246, 0.2)" // ring-brand/20 + focus:ring-2
+        : "none",
+      "&:hover": {
+        borderColor: "#E2E8F0",
       },
     }),
 
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isFocused ? '#F3F4F6' : '#FFFFFF',
-      color: '#111827',
-      '&:active': {
-        backgroundColor: '#E5E7EB',
+      backgroundColor: state.isFocused ? "#F3F4F6" : "#FFFFFF",
+      color: "#111827",
+      "&:active": {
+        backgroundColor: "#E5E7EB",
       },
     }),
-  }
+  };
 
   const options = [
-    { value: 'PF', label: 'Pessoa Física' },
-    { value: 'PJ', label: 'Pessoa Jurídica' },
-  ]
+    { value: "PF", label: "Pessoa Física" },
+    { value: "PJ", label: "Pessoa Jurídica" },
+  ];
   async function createCliente(e) {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const response = await api.post('clientes/create', formData)
-      console.log(response)
-      toast.success('Cliente registrado com sucesso')
-      onClose()
+      const response = await api.post("clientes/create", formData);
+      console.log(response);
+      toast.success("Cliente registrado com sucesso");
+
+      window.dispatchEvent(new Event("clienteCriado"));
+
+      onClose();
     } catch (error) {
-      toast.error(error?.response?.data?.error || 'Erro ao cadastrar cliente')
+      toast.error(error?.response?.data?.error || "Erro ao cadastrar cliente");
     }
   }
   return (
@@ -128,10 +131,10 @@ export default function ModalCliente({ show, onClose }) {
                       </label>
                       <Select
                         options={options}
-                        placeholder={'Selecione'}
+                        placeholder={"Selecione"}
                         styles={styles}
                         value={options.find(
-                          (option) => option.value === formData.tipoCliente
+                          (option) => option.value === formData.tipoCliente,
                         )}
                         onChange={(e) =>
                           setFormData((prev) => ({
@@ -141,7 +144,7 @@ export default function ModalCliente({ show, onClose }) {
                         }
                       />
                     </div>
-                    {formData.tipoCliente === 'PJ' ? (
+                    {formData.tipoCliente === "PJ" ? (
                       <>
                         <div className="space-y-1">
                           <label className="text-s text-slate-600">
@@ -149,7 +152,7 @@ export default function ModalCliente({ show, onClose }) {
                           </label>
                           <input
                             type="text"
-                            required={formData.tipoCliente == 'PJ'}
+                            required={formData.tipoCliente == "PJ"}
                             value={formData.razaoSocial}
                             onChange={(e) =>
                               setFormData((prev) => ({
@@ -178,7 +181,7 @@ export default function ModalCliente({ show, onClose }) {
                         </div>
                       </>
                     ) : (
-                      ''
+                      ""
                     )}
 
                     <div className="space-y-1">
@@ -342,5 +345,5 @@ export default function ModalCliente({ show, onClose }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

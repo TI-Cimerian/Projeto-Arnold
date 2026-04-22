@@ -92,6 +92,9 @@ export default function ModalOrcamento({
     { value: "Murilo Mansano", label: "Murilo Mansano" },
     { value: "Fábio Furtado", label: "Fábio Furtado" },
     { value: "Gabriel Wesley", label: "Gabriel Wesley" },
+    { value: "Vitor Hugo da Rocha", label: "Vitor Hugo da Rocha" },
+    { value: "Fernando Nascimento", label: "Fernando Nascimento" },
+    { value: "Keren de Oliveira", label: "Keren de Oliveira" },
   ];
 
   const optionsPagamento = [

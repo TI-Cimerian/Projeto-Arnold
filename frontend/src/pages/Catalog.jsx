@@ -38,13 +38,23 @@ function Catalog() {
     fetchMaquinas();
   }, [categoria, subCategoria, currentPage, limit, searchTerm]);
 
+  const fetchClientes = async () => {
+    const response = await api.get("/clientes");
+    setClientes(response.data);
+  };
+
   useEffect(() => {
-    const fetchClientes = async () => {
-      const response = await api.get("/clientes");
-      setClientes(response);
+    fetchClientes();
+
+    const atualizarClientes = () => {
+      fetchClientes();
     };
 
-    fetchClientes();
+    window.addEventListener("clienteCriado", atualizarClientes);
+
+    return () => {
+      window.removeEventListener("clienteCriado", atualizarClientes);
+    };
   }, []);
 
   const subTotal = carrinho.reduce(
@@ -114,7 +124,7 @@ function Catalog() {
         onClose={() => setModalOpen(false)}
         carrinho={carrinho}
         subTotal={subTotal}
-        clientes={clientes.data}
+        clientes={clientes}
         limparCarrinho={() => setCarrinho([])}
       />
       <div className="mt-9 mb-24 space-y-10 max-w-7xl mx-auto">
