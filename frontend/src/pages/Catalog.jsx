@@ -117,7 +117,7 @@ function Catalog() {
         clientes={clientes.data}
         limparCarrinho={() => setCarrinho([])}
       />
-      <div className="mt-20 mb-24 space-y-10 max-w-7xl mx-auto">
+      <div className="mt-9 mb-24 space-y-10 max-w-7xl mx-auto">
         {/* SEÇÃO CENTRAL */}
         <section className="overflow-hidden rounded-3xl border bg-gradient-to-r from-black via-black to-neutral-800 text-white shadow-sm">
           <div className="hidden md:grid gap-8 p-6 sm:p-8 md:grid-cols-2 md:p-10">
@@ -358,7 +358,7 @@ function Catalog() {
               </div>
             </div>
 
-            <div className="grid gap-2 grid-cols-2 md:grid-cols-3 relative overflow-y-auto ">
+            <div className="grid gap-2 grid-cols-2 md:grid-cols-3 relative max-h-[800px] overflow-y-auto ">
               {maquinas.map((maquina) => (
                 <div
                   key={maquina.id}

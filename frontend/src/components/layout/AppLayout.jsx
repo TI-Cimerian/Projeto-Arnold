@@ -7,7 +7,7 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col ">
       <Header />
-      <main className="mx-auto w-full flex-1 px-2 pt-6">
+      <main className="mx-auto w-full flex-1 px-2">
         <Outlet />
       </main>
       <Footer />
