@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 import api from "../../../api/api";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function ModalOrcamento({
   show,
@@ -19,6 +20,7 @@ export default function ModalOrcamento({
   const [vendedor, setVendedor] = useState();
   const [desconto, setDesconto] = useState(0);
   const [prazo, setPrazo] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (show) {
@@ -69,6 +71,7 @@ export default function ModalOrcamento({
       setObservacao("");
       onClose();
       limparCarrinho();
+      navigate(`pedidos/${response.data.pedido.id}`);
     } catch (error) {
       toast.error(error?.response?.data?.error || "Erro ao cadastrar cliente");
     }
@@ -314,8 +317,13 @@ export default function ModalOrcamento({
                 <input
                   className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition"
                   type="number"
+                  min="0"
+                  max="100"
                   value={desconto}
-                  onChange={(e) => setDesconto(Number(e.target.value))}
+                  onChange={(e) => {
+                    const valor = Number(e.target.value);
+                    setDesconto(Math.min(100, Math.max(0, valor)));
+                  }}
                 />{" "}
                 %
               </span>

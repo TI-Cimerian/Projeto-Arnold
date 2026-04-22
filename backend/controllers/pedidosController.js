@@ -1,70 +1,70 @@
-const pedidosRepository = require('../repository/pedidosRepository')
+const pedidosRepository = require("../repository/pedidosRepository");
 
 const getAllPedidos = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1
-    const vendedor = req.query.vendedor
-    const limit = parseInt(req.query.limit) || 500
-    const searchTerm = req.query.searchTerm || ''
-    const offset = (page - 1) * limit
+    const page = parseInt(req.query.page) || 1;
+    const vendedor = req.query.vendedor;
+    const limit = parseInt(req.query.limit) || 500;
+    const searchTerm = req.query.searchTerm || "";
+    const offset = (page - 1) * limit;
 
-    let whereClauses = []
+    let whereClauses = [];
 
-    let values = []
-    let paramIndex = 1
+    let values = [];
+    let paramIndex = 1;
 
     if (searchTerm) {
-      const searchNumber = parseInt(searchTerm)
+      const searchNumber = parseInt(searchTerm);
 
       if (!isNaN(searchNumber)) {
-        whereClauses.push(`p.id = $${paramIndex}`)
-        values.push(searchNumber)
-        paramIndex++
+        whereClauses.push(`p.id = $${paramIndex}`);
+        values.push(searchNumber);
+        paramIndex++;
       } else {
-        whereClauses.push(`c.nome ILIKE $${paramIndex}`)
-        values.push(`%${searchTerm}%`)
-        paramIndex++
+        whereClauses.push(`c.nome ILIKE $${paramIndex}`);
+        values.push(`%${searchTerm}%`);
+        paramIndex++;
       }
     }
 
     if (vendedor) {
-      whereClauses.push(`p.vendedor = $${paramIndex}`)
-      values.push(vendedor)
-      paramIndex++
+      whereClauses.push(`p.vendedor = $${paramIndex}`);
+      values.push(vendedor);
+      paramIndex++;
     }
 
     const whereSQL = whereClauses.length
-      ? `WHERE ${whereClauses.join(' AND ')}`
-      : ''
+      ? `WHERE ${whereClauses.join(" AND ")}`
+      : "";
 
-    values.push(limit, offset)
+    values.push(limit, offset);
 
-    const countValues = values.slice(0, values.length - 2)
+    const countValues = values.slice(0, values.length - 2);
 
     const pedidos = await pedidosRepository.getPedidos(
       whereSQL,
       paramIndex,
       countValues,
-      values
-    )
+      values,
+    );
 
-    res.json(pedidos)
+    res.json(pedidos);
   } catch (error) {
-    console.error('Erro ao obter pedidos:', error)
-    res.status(500).json({ error: 'Erro ao obter pedidos' })
+    console.error("Erro ao obter pedidos:", error);
+    res.status(500).json({ error: "Erro ao obter pedidos" });
   }
-}
+};
 
 const getPedidoByID = async (req, res) => {
-  const { id } = req.params
+  const { id } = req.params;
 
-  const pedido = await pedidosRepository.getPedidoByID(id)
+  const pedido = await pedidosRepository.getPedidoByID(id);
 
   if (!pedido) {
-    res.status(400).json({ error: 'Pedido não encontrado' })
+    res.status(400).json({ error: "Pedido não encontrado" });
   }
 
-  const primeiro = pedido[0]
+  const primeiro = pedido[0];
   const returnPedido = {
     pedido: {
       id: primeiro.fk_pedido,
@@ -104,11 +104,15 @@ const getPedidoByID = async (req, res) => {
       quantidade: item.quantidade,
       valor_total: item.valor_total,
       referencia_ploomes: item.id_ploomes,
+      comprimento: item.comprimento,
+      largura: item.largura,
+      altura: item.altura,
+      peso: item.peso,
     })),
-  }
+  };
 
-  return res.status(200).json(returnPedido)
-}
+  return res.status(200).json(returnPedido);
+};
 const createPedido = async (req, res) => {
   const {
     cliente,
@@ -123,17 +127,17 @@ const createPedido = async (req, res) => {
     entrada,
     num_parcelas,
     valor_parcelas,
-  } = req.body
+  } = req.body;
   if (!cliente) {
-    return res.status(404).json({ error: 'Cliente não selecionado' })
+    return res.status(404).json({ error: "Cliente não selecionado" });
   }
   if (!vendedor) {
-    return res.status(404).json({ error: 'Vendedor não selecionado' })
+    return res.status(404).json({ error: "Vendedor não selecionado" });
   }
-  if (tipo_pagamento === 'Parcelamento' && entrada < 30) {
+  if (tipo_pagamento === "Parcelamento" && entrada < 30) {
     return res
       .status(404)
-      .json({ error: 'A entrada deve ser de pelo menos 30%' })
+      .json({ error: "A entrada deve ser de pelo menos 30%" });
   }
 
   try {
@@ -149,21 +153,21 @@ const createPedido = async (req, res) => {
       tipo_pagamento,
       entrada,
       num_parcelas,
-      valor_parcelas
-    )
+      valor_parcelas,
+    );
     return res
       .status(201)
-      .json(resultado, { message: 'Pedido registrado com sucesso' })
+      .json(resultado, { message: "Pedido registrado com sucesso" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res
       .status(500)
-      .json({ error: 'Erro ao processar pedido e máquinas' })
+      .json({ error: "Erro ao processar pedido e máquinas" });
   }
-}
+};
 
 module.exports = {
   getAllPedidos,
   createPedido,
   getPedidoByID,
-}
+};

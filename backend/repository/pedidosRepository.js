@@ -1,4 +1,4 @@
-const pool = require('../database')
+const pool = require("../database");
 
 const pedidosRepository = {
   async getPedidos(whereSQL, paramIndex, countValues, values) {
@@ -6,21 +6,21 @@ const pedidosRepository = {
        JOIN clientes c ON p.fk_cliente = c.id
        ${whereSQL}
        ORDER BY id ASC
-       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
 
     const countQuery = `
       SELECT COUNT(*) AS total
       FROM pedidos p
       JOIN clientes c ON p.fk_cliente = c.id
-      ${whereSQL}`
+      ${whereSQL}`;
 
-    const pedidos = await pool.query(query, values)
+    const pedidos = await pool.query(query, values);
 
-    const countPedidos = await pool.query(countQuery, countValues)
+    const countPedidos = await pool.query(countQuery, countValues);
     return {
       pedidos: pedidos.rows,
       totalPedidos: countPedidos.rows[0].total,
-    }
+    };
   },
 
   async createPedido(
@@ -35,12 +35,12 @@ const pedidosRepository = {
     tipo_pagamento,
     entrada,
     num_parcelas,
-    valor_parcelas
+    valor_parcelas,
   ) {
     const query = `
     INSERT INTO pedidos (fk_cliente, valor_bruto_total, valor_liquido_total, desconto, vendedor, observacao, prazo, tipo_pagamento, entrada, num_parcelas, valor_parcelas)
     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-    RETURNING *`
+    RETURNING *`;
     const values = [
       cliente,
       valorBruto,
@@ -53,26 +53,26 @@ const pedidosRepository = {
       entrada,
       num_parcelas,
       valor_parcelas,
-    ]
+    ];
 
-    const resultPedidos = await pool.query(query, values)
-    let maquinasCriadas = []
+    const resultPedidos = await pool.query(query, values);
+    let maquinasCriadas = [];
 
     for (const maquina of maquinas) {
-      const query = `INSERT INTO maquinas_pedido (fk_pedido, fk_maquina, quantidade, valor_total) VALUES($1,$2,$3,$4) RETURNING *`
+      const query = `INSERT INTO maquinas_pedido (fk_pedido, fk_maquina, quantidade, valor_total) VALUES($1,$2,$3,$4) RETURNING *`;
       const values = [
         resultPedidos.rows[0].id,
         maquina.id,
         maquina.quantidade,
         maquina.valor * maquina.quantidade,
-      ]
-      const maquinaPedido = await pool.query(query, values)
-      maquinasCriadas.push(maquinaPedido.rows[0])
+      ];
+      const maquinaPedido = await pool.query(query, values);
+      maquinasCriadas.push(maquinaPedido.rows[0]);
     }
     return {
       pedido: resultPedidos.rows[0],
       maquinas: maquinasCriadas,
-    }
+    };
   },
 
   async getPedidoByID(id) {
@@ -104,6 +104,10 @@ const pedidosRepository = {
       m.descricao,
       m.valor AS maquina_valor,
       m.id_ploomes,
+      m.comprimento,
+      m.largura,
+      m.altura,
+      m.peso,
 
       c.id AS cliente_id,
       c.nome AS cliente_nome,
@@ -124,11 +128,11 @@ const pedidosRepository = {
     JOIN maquinas m ON m.id = mp.fk_maquina
     JOIN clientes c ON p.fk_cliente = c.id
     WHERE mp.fk_pedido = ${id}
-  `
+  `;
 
-    const pedido = await pool.query(query)
-    return pedido.rows
+    const pedido = await pool.query(query);
+    return pedido.rows;
   },
-}
+};
 
-module.exports = pedidosRepository
+module.exports = pedidosRepository;

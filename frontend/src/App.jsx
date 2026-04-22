@@ -1,10 +1,12 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import './App.css'
-import Catalog from './pages/Catalog'
-import Lista_Pedidos from './pages/Lista_Pedidos'
-import Pedido from './pages/Pedido'
-import { AppLayout } from './components/layout/AppLayout'
-import Maquina from './pages/Maquina'
+import { Routes, Route, Navigate } from "react-router-dom";
+import "./App.css";
+import Catalog from "./pages/Catalog";
+import Lista_Pedidos from "./pages/Lista_Pedidos";
+import Pedido from "./pages/Pedido";
+import { AppLayout } from "./components/layout/AppLayout";
+import Maquina from "./pages/Maquina";
+import Impressao from "./pages/Impressao";
+import { PrintLayout } from "./components/layout/PrintLayout";
 
 function App() {
   return (
@@ -16,9 +18,13 @@ function App() {
           <Route path="/pedidos/:id" element={<Pedido />} />
           <Route path="/maquina/:id" element={<Maquina />} />
         </Route>
+
+        <Route element={<PrintLayout />}>
+          <Route path="/pedidos/:id/imprimir" element={<Impressao />} />
+        </Route>
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
