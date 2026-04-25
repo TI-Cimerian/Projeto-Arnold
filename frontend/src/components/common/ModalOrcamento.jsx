@@ -41,9 +41,9 @@ export default function ModalOrcamento({
     }
   }, [tipoPagamento]);
 
-  const valorDesconto = subTotal * (desconto / 100);
+  const valorDesconto = subTotal * (Number(desconto) / 100);
   const valorComDesconto = subTotal - valorDesconto;
-  const valorAcrescimo = valorComDesconto * (acrescimo / 100);
+  const valorAcrescimo = valorComDesconto * (Number(acrescimo) / 100);
   const total = valorComDesconto + valorAcrescimo;
   const valorEntrada = total * (Number(entrada) / 100);
   const valorParcelas = (total - valorEntrada) / Number(parcelas || 1);
@@ -54,26 +54,31 @@ export default function ModalOrcamento({
         cliente: clienteSelecionado?.value,
         valorBruto: subTotal,
         valorLiquido: total,
-        desconto: desconto,
+        desconto,
         vendedor: vendedor?.value,
         maquinas: carrinho,
-        observacao: observacao,
-        prazo: prazo,
+        observacao,
+        prazo,
         tipo_pagamento: tipoPagamento?.value,
-        entrada: entrada,
+        entrada,
         num_parcelas: tipoPagamento?.value === "À vista" ? 1 : parcelas,
         valor_parcelas:
           tipoPagamento?.value === "À vista" ? total : valorParcelas,
-        acrescimo: acrescimo,
+        acrescimo,
       });
 
       toast.success("Pedido registrado com sucesso");
+
       setClienteSelecionado(null);
       setVendedor(null);
       setEntrada(0);
       setParcelas(1);
       setTipoPagamento(null);
       setObservacao("");
+      setDesconto(0);
+      setPrazo(0);
+      setAcrescimo(0);
+
       onClose();
       limparCarrinho();
       navigate(`pedidos/${response.data.pedido.id}`);
@@ -112,7 +117,7 @@ export default function ModalOrcamento({
     control: (base, state) => ({
       ...base,
       width: "100%",
-      height: "2.5rem",
+      minHeight: "2.5rem",
       borderRadius: "0.75rem",
       borderColor: "#E2E8F0",
       backgroundColor: "#FFFFFF",
@@ -125,6 +130,22 @@ export default function ModalOrcamento({
       },
     }),
 
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0 0.75rem",
+    }),
+
+    input: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+    }),
+
+    indicatorsContainer: (base) => ({
+      ...base,
+      minHeight: "2.5rem",
+    }),
+
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isFocused ? "#F3F4F6" : "#FFFFFF",
@@ -133,54 +154,62 @@ export default function ModalOrcamento({
         backgroundColor: "#E5E7EB",
       },
     }),
+
+    menu: (base) => ({
+      ...base,
+      zIndex: 99999,
+    }),
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center ">
-      <div className="absolute inset-0 bg-black/60 " onClick={onClose} />
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto p-3 sm:items-center sm:p-6">
+      <div className="fixed inset-0 bg-black/60" onClick={onClose} />
 
-      <div className="relative z-10 w-full max-w-7xl rounded-2xl bg-white p-6 shadow-2xl max-h-screen">
-        <div className="flex items-center justify-between border-b pb-3 ">
-          <h2 className="text-xl font-semibold text-gray-900">
+      <div className="relative z-10 my-4 flex max-h-[calc(100vh-2rem)] w-full max-w-7xl flex-col rounded-2xl bg-white p-4 shadow-2xl sm:p-6">
+        <div className="flex items-center justify-between gap-3 border-b pb-3">
+          <h2 className="text-base font-semibold text-gray-900 sm:text-xl">
             Gerar orçamento
           </h2>
+
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg px-3 py-1 text-gray-500 transition hover:bg-gray-100 hover:text-black"
+            className="shrink-0 rounded-lg px-3 py-1 text-gray-500 transition hover:bg-gray-100 hover:text-black"
           >
             ✕
           </button>
         </div>
 
-        <div className="mt-4 space-y-4 overflow-y-auto max-h-[500px] px-1">
+        <div className="mt-4 flex-1 space-y-4 overflow-y-auto px-1 pr-1">
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
               Produtos selecionados
             </h3>
 
-            <div className="mt-3 max-h-96 space-y-3 overflow-y-auto">
+            <div className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1 sm:max-h-96">
               {carrinho.length > 0 ? (
                 carrinho.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 rounded-xl border p-3"
+                    className="flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center"
                   >
                     <img
                       src={`/maquinas/${item.id}.jpg`}
                       alt={item.nome}
-                      className="h-16 w-16 rounded-lg object-cover"
+                      className="h-20 w-full rounded-lg object-cover sm:h-16 sm:w-16"
                     />
 
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 uppercase">
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words font-semibold uppercase text-gray-900">
                         {item.nome}
                       </p>
+
                       <p className="text-sm text-gray-500">
                         Quantidade: {item.quantidade}
                       </p>
                     </div>
 
-                    <div className="text-sm font-semibold text-gray-700">
+                    <div className="text-left text-sm font-semibold text-gray-700 sm:text-right">
                       {(item.valor * item.quantidade).toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
@@ -196,26 +225,23 @@ export default function ModalOrcamento({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Cliente
               </h3>
-              <div className="mt-3 max-h-72 space-y-3">
-                <div className="space-y-1">
-                  <Select
-                    options={options}
-                    placeholder={"Selecione o cliente"}
-                    required
-                    styles={styles}
-                    value={options.find(
-                      (option) => option.value === clienteSelecionado?.id,
-                    )}
-                    onChange={(e) => {
-                      setClienteSelecionado(e);
-                    }}
-                  />
-                </div>
+
+              <div className="mt-3 space-y-3">
+                <Select
+                  options={options}
+                  placeholder="Selecione o cliente"
+                  required
+                  styles={styles}
+                  value={options.find(
+                    (option) => option.value === clienteSelecionado?.value,
+                  )}
+                  onChange={(e) => setClienteSelecionado(e)}
+                />
               </div>
             </div>
 
@@ -223,21 +249,18 @@ export default function ModalOrcamento({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Vendedor
               </h3>
-              <div className="mt-3 max-h-72 space-y-3">
-                <div className="space-y-1">
-                  <Select
-                    options={optionsVendedor}
-                    placeholder={"Selecione o cliente"}
-                    required
-                    styles={styles}
-                    value={optionsVendedor.find(
-                      (option) => option.value === vendedor?.value,
-                    )}
-                    onChange={(e) => {
-                      setVendedor(e);
-                    }}
-                  />
-                </div>
+
+              <div className="mt-3 space-y-3">
+                <Select
+                  options={optionsVendedor}
+                  placeholder="Selecione o vendedor"
+                  required
+                  styles={styles}
+                  value={optionsVendedor.find(
+                    (option) => option.value === vendedor?.value,
+                  )}
+                  onChange={(e) => setVendedor(e)}
+                />
               </div>
             </div>
 
@@ -245,21 +268,18 @@ export default function ModalOrcamento({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Tipo de pagamento
               </h3>
-              <div className="mt-3 max-h-72 space-y-3">
-                <div className="space-y-1">
-                  <Select
-                    options={optionsPagamento}
-                    placeholder={"Selecione o cliente"}
-                    required
-                    styles={styles}
-                    value={optionsPagamento.find(
-                      (option) => option.value === tipoPagamento?.value,
-                    )}
-                    onChange={(e) => {
-                      setTipoPagamento(e);
-                    }}
-                  />
-                </div>
+
+              <div className="mt-3 space-y-3">
+                <Select
+                  options={optionsPagamento}
+                  placeholder="Selecione o pagamento"
+                  required
+                  styles={styles}
+                  value={optionsPagamento.find(
+                    (option) => option.value === tipoPagamento?.value,
+                  )}
+                  onChange={(e) => setTipoPagamento(e)}
+                />
               </div>
             </div>
 
@@ -267,17 +287,16 @@ export default function ModalOrcamento({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Percentual de entrada
               </h3>
-              <div className="mt-3 max-h-72 space-y-3">
-                <div className="space-y-1">
-                  <input
-                    type="number"
-                    min={0}
-                    value={entrada}
-                    onChange={(e) => setEntrada(e.target.value)}
-                    className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                    placeholder="Percentual de entrada"
-                  />
-                </div>
+
+              <div className="mt-3 space-y-3">
+                <input
+                  type="number"
+                  min={0}
+                  value={entrada}
+                  onChange={(e) => setEntrada(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
+                  placeholder="Percentual de entrada"
+                />
               </div>
             </div>
 
@@ -285,41 +304,42 @@ export default function ModalOrcamento({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Acréscimo
               </h3>
-              <div className="mt-3 max-h-72 space-y-3">
-                <div className="space-y-1">
-                  <input
-                    type="number"
-                    min={0}
-                    value={acrescimo}
-                    onChange={(e) => setAcrescimo(e.target.value)}
-                    className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                    placeholder="Percentual de entrada"
-                  />
-                </div>
+
+              <div className="mt-3 space-y-3">
+                <input
+                  type="number"
+                  min={0}
+                  value={acrescimo}
+                  onChange={(e) => setAcrescimo(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
+                  placeholder="Percentual de acréscimo"
+                />
               </div>
             </div>
 
-            <div className="space-y-1 w-full">
+            <div className="w-full space-y-3">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Número de parcelas
               </h3>
+
               <input
                 type="number"
                 min={1}
-                className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500"
-                placeholder="Descrição"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500"
+                placeholder="Número de parcelas"
                 value={tipoPagamento?.value === "À vista" ? 1 : parcelas}
                 disabled={tipoPagamento?.value === "À vista"}
                 onChange={(e) => setParcelas(Number(e.target.value))}
               />
             </div>
 
-            <div className="space-y-2 w-full">
+            <div className="w-full space-y-3 sm:col-span-2 lg:col-span-3">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Observações
               </h3>
+
               <textarea
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 min-h-[50px] max-h-[100px] py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
+                className="min-h-[80px] w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
                 placeholder="Descrição"
                 value={observacao}
                 onChange={(e) => setObservacao(e.target.value)}
@@ -328,9 +348,9 @@ export default function ModalOrcamento({
           </div>
 
           <div className="rounded-xl bg-gray-50 p-4">
-            <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center justify-between gap-4 text-sm text-gray-600">
               <span>Subtotal</span>
-              <span>
+              <span className="text-right">
                 {subTotal.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -338,9 +358,10 @@ export default function ModalOrcamento({
               </span>
             </div>
 
-            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+            <div className="mt-2 flex items-center justify-between gap-4 text-sm text-gray-600">
               <span>Desconto</span>
-              <span>
+
+              <span className="flex items-center gap-1">
                 <input
                   className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition"
                   type="number"
@@ -351,14 +372,15 @@ export default function ModalOrcamento({
                     const valor = Number(e.target.value);
                     setDesconto(Math.min(100, Math.max(0, valor)));
                   }}
-                />{" "}
+                />
                 %
               </span>
             </div>
 
-            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+            <div className="mt-2 flex items-center justify-between gap-4 text-sm text-gray-600">
               <span>Entrada</span>
-              <span>
+
+              <span className="text-right">
                 {valorEntrada.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -366,9 +388,10 @@ export default function ModalOrcamento({
               </span>
             </div>
 
-            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+            <div className="mt-2 flex items-center justify-between gap-4 text-sm text-gray-600">
               <span>Parcelas</span>
-              <span>
+
+              <span className="text-right">
                 {tipoPagamento?.value === "À vista" ? 1 : parcelas || 1}x de{" "}
                 {(tipoPagamento?.value === "À vista"
                   ? total
@@ -380,22 +403,24 @@ export default function ModalOrcamento({
               </span>
             </div>
 
-            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+            <div className="mt-2 flex items-center justify-between gap-4 text-sm text-gray-600">
               <span>Prazo</span>
-              <span>
+
+              <span className="flex items-center gap-1">
                 <input
                   className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-semibold text-gray-700 shadow-sm outline-none transition"
                   type="number"
                   value={prazo}
                   onChange={(e) => setPrazo(Number(e.target.value))}
-                />{" "}
+                />
                 dias
               </span>
             </div>
 
-            <div className="mt-3 flex items-center justify-between border-t pt-3 text-base font-semibold text-gray-900">
+            <div className="mt-3 flex items-center justify-between gap-4 border-t pt-3 text-base font-semibold text-gray-900">
               <span>Total</span>
-              <span>
+
+              <span className="text-right">
                 {total.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -405,17 +430,19 @@ export default function ModalOrcamento({
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3 border-t pt-4">
+        <div className="mt-6 flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-end">
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+            className="w-full rounded-xl border px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 sm:w-auto"
           >
             Cancelar
           </button>
 
           <button
-            onClick={() => criarPedido()}
-            className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+            type="button"
+            onClick={criarPedido}
+            className="w-full rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800 sm:w-auto"
           >
             Concluir
           </button>
