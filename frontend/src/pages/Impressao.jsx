@@ -246,6 +246,9 @@ function Impressao() {
               <th className="border border-gray-300 bg-[#eeeeee] p-4 text-center font-semibold">
                 Valor de desconto
               </th>
+              <th className="border border-gray-300 bg-[#eeeeee] p-4 text-center font-semibold">
+                Acréscimo
+              </th>
             </tr>
           </thead>
 
@@ -259,6 +262,9 @@ function Impressao() {
               </td>
               <td className="border border-gray-300 p-4 text-center">
                 {formatCurrency(pedido.valor_bruto - pedido.valor_liquido)}
+              </td>
+              <td className="border border-gray-300 p-4 text-center">
+                {pedido.acrescimo}%
               </td>
             </tr>
           </tbody>

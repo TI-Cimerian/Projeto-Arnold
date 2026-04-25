@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import api from '../../api/api'
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../api/api";
 
 function Lista_Pedidos() {
-  const [pedidos, setPedidos] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [totalPedidos, setTotalPedidos] = useState(0)
-  const [limit, setLimit] = useState(20)
-  const [pages, setPages] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [vendedor, setVendedor] = useState()
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPedidos, setTotalPedidos] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [pages, setPages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [vendedor, setVendedor] = useState();
 
   useEffect(() => {
     const fetchPedidos = async () => {
@@ -23,26 +23,29 @@ function Lista_Pedidos() {
             params: {
               vendedor: vendedor,
             },
-          }
-        )
+          },
+        );
 
-        setPedidos(response.data.pedidos)
-        setTotalPedidos(response.data.totalPedidos)
+        const total = Number(response.data.totalPedidos) || 0;
+        const calculatedTotalPages = Math.max(1, Math.ceil(total / limit));
 
-        setTotalPages(Math.ceil(totalCount / limit))
-        const arrayPages = []
-        for (let i = 1; i <= totalPages; i++) {
-          arrayPages.push(i)
+        setPedidos(response.data.pedidos || []);
+        setTotalPedidos(total);
+        setTotalPages(calculatedTotalPages);
+
+        const arrayPages = [];
+        for (let i = 1; i <= calculatedTotalPages; i++) {
+          arrayPages.push(i);
         }
-        setPages(arrayPages)
+        setPages(arrayPages);
       } catch (error) {
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPedidos()
-  }, [currentPage, limit, searchTerm, vendedor])
+    fetchPedidos();
+  }, [currentPage, limit, searchTerm, vendedor]);
 
   return (
     <main className="mx-auto mt-12 w-full max-w-7xl flex-1 px-4 py-6 space-y-6">
@@ -74,8 +77,8 @@ function Lista_Pedidos() {
                 placeholder="Digite o número do pedido"
                 value={searchTerm}
                 onChange={(e) => {
-                  setSearchTerm(e.target.value)
-                  setCurrentPage(1)
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
                 }}
               ></input>
             </div>
@@ -85,7 +88,7 @@ function Lista_Pedidos() {
                 className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
                 onChange={(e) => setVendedor(e.target.value)}
               >
-                <option defaultValue={''} value="">
+                <option defaultValue={""} value="">
                   Todos
                 </option>
                 <option value="Benedito Salles">Benedito Salles</option>
@@ -142,11 +145,11 @@ function Lista_Pedidos() {
 
                         <td className="px-3 py-3">
                           {Number(pedido.valor_liquido_total).toLocaleString(
-                            'pt-BR',
+                            "pt-BR",
                             {
-                              style: 'currency',
-                              currency: 'BRL',
-                            }
+                              style: "currency",
+                              currency: "BRL",
+                            },
                           )}
                         </td>
                         <td className="px-3 py-3">{pedido.tipo_pagamento}</td>
@@ -193,7 +196,7 @@ function Lista_Pedidos() {
         </section>
       </div>
     </main>
-  )
+  );
 }
 
-export default Lista_Pedidos
+export default Lista_Pedidos;

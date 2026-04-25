@@ -36,10 +36,11 @@ const pedidosRepository = {
     entrada,
     num_parcelas,
     valor_parcelas,
+    acrescimo,
   ) {
     const query = `
-    INSERT INTO pedidos (fk_cliente, valor_bruto_total, valor_liquido_total, desconto, vendedor, observacao, prazo, tipo_pagamento, entrada, num_parcelas, valor_parcelas)
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    INSERT INTO pedidos (fk_cliente, valor_bruto_total, valor_liquido_total, desconto, vendedor, observacao, prazo, tipo_pagamento, entrada, num_parcelas, valor_parcelas, acrescimo)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
     RETURNING *`;
     const values = [
       cliente,
@@ -53,6 +54,7 @@ const pedidosRepository = {
       entrada,
       num_parcelas,
       valor_parcelas,
+      acrescimo,
     ];
 
     const resultPedidos = await pool.query(query, values);
@@ -96,6 +98,7 @@ const pedidosRepository = {
       p.prazo,
       p.observacao,
       p.vendedor,
+      p.acrescimo,
 
       m.id AS maquina_id,
       m.nome AS maquina_nome,

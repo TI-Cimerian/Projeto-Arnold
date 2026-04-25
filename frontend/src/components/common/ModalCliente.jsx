@@ -176,7 +176,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                             }
                             type="text"
                             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                            placeholder="Número de série"
+                            placeholder="CNPJ"
                           />
                         </div>
                       </>
@@ -189,7 +189,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                       <input
                         type="text"
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                        placeholder="Número de série"
+                        placeholder="CPF"
                         value={formData.cpf}
                         onChange={(e) =>
                           setFormData((prev) => ({
@@ -205,7 +205,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                       <input
                         type="email"
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                        placeholder="Número de série"
+                        placeholder="E-mail"
                         required
                         value={formData.email}
                         onChange={(e) =>
@@ -265,7 +265,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                     <div className="space-y-1">
                       <label className="text-s text-slate-600">Número</label>
                       <input
-                        type="number"
+                        type="text"
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
                         placeholder="Número"
                         value={formData.numero}
@@ -282,7 +282,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                       <input
                         type="text"
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                        placeholder="Número de série"
+                        placeholder="Cidade"
                         value={formData.cidade}
                         onChange={(e) =>
                           setFormData((prev) => ({
@@ -297,7 +297,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                       <input
                         type="text"
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                        placeholder="Número de série"
+                        placeholder="Estado"
                         value={formData.estado}
                         onChange={(e) =>
                           setFormData((prev) => ({
@@ -312,7 +312,7 @@ export default function ModalCliente({ show, onClose, onClienteCriado }) {
                       <input
                         type="text"
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                        placeholder="Número de série"
+                        placeholder="País"
                         value={formData.pais}
                         onChange={(e) =>
                           setFormData((prev) => ({

@@ -20,6 +20,7 @@ export default function ModalOrcamento({
   const [vendedor, setVendedor] = useState();
   const [desconto, setDesconto] = useState(0);
   const [prazo, setPrazo] = useState(0);
+  const [acrescimo, setAcrescimo] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,7 +41,10 @@ export default function ModalOrcamento({
     }
   }, [tipoPagamento]);
 
-  const total = subTotal - subTotal * (desconto / 100);
+  const valorDesconto = subTotal * (desconto / 100);
+  const valorComDesconto = subTotal - valorDesconto;
+  const valorAcrescimo = valorComDesconto * (acrescimo / 100);
+  const total = valorComDesconto + valorAcrescimo;
   const valorEntrada = total * (Number(entrada) / 100);
   const valorParcelas = (total - valorEntrada) / Number(parcelas || 1);
 
@@ -60,6 +64,7 @@ export default function ModalOrcamento({
         num_parcelas: tipoPagamento?.value === "À vista" ? 1 : parcelas,
         valor_parcelas:
           tipoPagamento?.value === "À vista" ? total : valorParcelas,
+        acrescimo: acrescimo,
       });
 
       toast.success("Pedido registrado com sucesso");
@@ -265,11 +270,30 @@ export default function ModalOrcamento({
               <div className="mt-3 max-h-72 space-y-3">
                 <div className="space-y-1">
                   <input
-                    type="text"
+                    type="number"
+                    min={0}
                     value={entrada}
                     onChange={(e) => setEntrada(e.target.value)}
                     className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
-                    placeholder="Razão social"
+                    placeholder="Percentual de entrada"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                Acréscimo
+              </h3>
+              <div className="mt-3 max-h-72 space-y-3">
+                <div className="space-y-1">
+                  <input
+                    type="number"
+                    min={0}
+                    value={acrescimo}
+                    onChange={(e) => setAcrescimo(e.target.value)}
+                    className="w-full rounded-xl border h-10 border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-brand/20 transition focus:ring-2"
+                    placeholder="Percentual de entrada"
                   />
                 </div>
               </div>

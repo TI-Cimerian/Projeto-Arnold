@@ -78,6 +78,7 @@ const getPedidoByID = async (req, res) => {
       num_parcelas: primeiro.num_parcelas,
       valor_parcelas: primeiro.valor_parcelas,
       tipo_pagamento: primeiro.tipo_pagamento,
+      acrescimo: primeiro.acrescimo,
     },
     cliente: {
       id: primeiro.fk_cliente,
@@ -127,6 +128,7 @@ const createPedido = async (req, res) => {
     entrada,
     num_parcelas,
     valor_parcelas,
+    acrescimo,
   } = req.body;
   if (!cliente) {
     return res.status(404).json({ error: "Cliente não selecionado" });
@@ -154,6 +156,7 @@ const createPedido = async (req, res) => {
       entrada,
       num_parcelas,
       valor_parcelas,
+      acrescimo,
     );
     return res
       .status(201)

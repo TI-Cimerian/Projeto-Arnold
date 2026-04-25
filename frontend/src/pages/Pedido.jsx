@@ -235,12 +235,39 @@ function Pedido() {
                 </p>
                 <p className="text-sm text-slate-800">{pedido.desconto}%</p>
               </div>
+              <div>
+                <p className="text-xs font-semibold uppercase text-slate-500">
+                  Valor de desconto
+                </p>
+                <p className="text-sm text-slate-800">
+                  {formatCurrency(
+                    pedido.valor_liquido * (pedido.desconto / 100),
+                  )}
+                </p>
+              </div>
 
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Entrada
                 </p>
                 <p className="text-sm text-slate-800">{pedido.entrada}%</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase text-slate-500">
+                  Valor de entrada
+                </p>
+                <p className="text-sm text-slate-800">
+                  {" "}
+                  {formatCurrency(
+                    pedido.valor_liquido * (pedido.entrada / 100),
+                  )}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase text-slate-500">
+                  Acréscimo
+                </p>
+                <p className="text-sm text-slate-800">{pedido.acrescimo}%</p>
               </div>
 
               <div>
