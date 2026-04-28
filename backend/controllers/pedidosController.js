@@ -4,6 +4,7 @@ const getAllPedidos = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const vendedor = req.query.vendedor;
+    const status = req.query.status;
     const limit = parseInt(req.query.limit) || 500;
     const searchTerm = req.query.searchTerm || "";
     const offset = (page - 1) * limit;
@@ -32,7 +33,11 @@ const getAllPedidos = async (req, res) => {
       values.push(vendedor);
       paramIndex++;
     }
-
+    if (status) {
+      whereClauses.push(`p.status = $${paramIndex}`);
+      values.push(status);
+      paramIndex++;
+    }
     const whereSQL = whereClauses.length
       ? `WHERE ${whereClauses.join(" AND ")}`
       : "";
@@ -79,6 +84,7 @@ const getPedidoByID = async (req, res) => {
       valor_parcelas: primeiro.valor_parcelas,
       tipo_pagamento: primeiro.tipo_pagamento,
       acrescimo: primeiro.acrescimo,
+      status: primeiro.status,
     },
     cliente: {
       id: primeiro.fk_cliente,
@@ -129,6 +135,7 @@ const createPedido = async (req, res) => {
     num_parcelas,
     valor_parcelas,
     acrescimo,
+    status,
   } = req.body;
   if (!cliente) {
     return res.status(404).json({ error: "Cliente não selecionado" });
@@ -157,6 +164,7 @@ const createPedido = async (req, res) => {
       num_parcelas,
       valor_parcelas,
       acrescimo,
+      status,
     );
     return res
       .status(201)
@@ -168,9 +176,44 @@ const createPedido = async (req, res) => {
       .json({ error: "Erro ao processar pedido e máquinas" });
   }
 };
+const updateStatusPedido = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID do pedido não informado" });
+  }
+
+  if (!status) {
+    return res.status(400).json({ error: "Status não informado" });
+  }
+
+  try {
+    const pedidoAtualizado = await pedidosRepository.updateStatusPedido(
+      id,
+      status,
+    );
+
+    if (!pedidoAtualizado) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
+
+    return res.status(200).json({
+      message: "Status do pedido atualizado com sucesso",
+      pedido: pedidoAtualizado,
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar status do pedido:", error);
+
+    return res.status(500).json({
+      error: "Erro ao atualizar status do pedido",
+    });
+  }
+};
 
 module.exports = {
   getAllPedidos,
   createPedido,
   getPedidoByID,
+  updateStatusPedido,
 };

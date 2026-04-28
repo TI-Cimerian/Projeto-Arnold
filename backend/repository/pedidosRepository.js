@@ -2,7 +2,7 @@ const pool = require("../database");
 
 const pedidosRepository = {
   async getPedidos(whereSQL, paramIndex, countValues, values) {
-    const query = `SELECT p.id, p.valor_liquido_total, p.tipo_pagamento, p.vendedor, c.id as id_cliente, c.nome FROM pedidos p 
+    const query = `SELECT p.id, p.valor_liquido_total, p.tipo_pagamento, p.vendedor, p.status, c.id as id_cliente, c.nome FROM pedidos p 
        JOIN clientes c ON p.fk_cliente = c.id
        ${whereSQL}
        ORDER BY id ASC
@@ -14,12 +14,22 @@ const pedidosRepository = {
       JOIN clientes c ON p.fk_cliente = c.id
       ${whereSQL}`;
 
+    const totalValorQuery = `
+  SELECT COALESCE(SUM(p.valor_liquido_total), 0) AS valor_total_filtrado
+  FROM pedidos p
+  JOIN clientes c ON c.id = p.fk_cliente
+  ${whereSQL}
+`;
+
+    const totalValorResult = await pool.query(totalValorQuery, countValues);
+
     const pedidos = await pool.query(query, values);
 
     const countPedidos = await pool.query(countQuery, countValues);
     return {
       pedidos: pedidos.rows,
       totalPedidos: countPedidos.rows[0].total,
+      valorTotalFiltrado: Number(totalValorResult.rows[0].valor_total_filtrado),
     };
   },
 
@@ -37,10 +47,11 @@ const pedidosRepository = {
     num_parcelas,
     valor_parcelas,
     acrescimo,
+    status,
   ) {
     const query = `
-    INSERT INTO pedidos (fk_cliente, valor_bruto_total, valor_liquido_total, desconto, vendedor, observacao, prazo, tipo_pagamento, entrada, num_parcelas, valor_parcelas, acrescimo)
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+    INSERT INTO pedidos (fk_cliente, valor_bruto_total, valor_liquido_total, desconto, vendedor, observacao, prazo, tipo_pagamento, entrada, num_parcelas, valor_parcelas, acrescimo, status)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
     RETURNING *`;
     const values = [
       cliente,
@@ -55,6 +66,7 @@ const pedidosRepository = {
       num_parcelas,
       valor_parcelas,
       acrescimo,
+      status,
     ];
 
     const resultPedidos = await pool.query(query, values);
@@ -99,6 +111,7 @@ const pedidosRepository = {
       p.observacao,
       p.vendedor,
       p.acrescimo,
+      p.status,
 
       m.id AS maquina_id,
       m.nome AS maquina_nome,
@@ -135,6 +148,21 @@ const pedidosRepository = {
 
     const pedido = await pool.query(query);
     return pedido.rows;
+  },
+
+  async updateStatusPedido(id, status) {
+    const query = `
+    UPDATE pedidos
+    SET status = $1
+    WHERE id = $2
+    RETURNING *
+  `;
+
+    const values = [status, id];
+
+    const result = await pool.query(query, values);
+
+    return result.rows[0];
   },
 };
 

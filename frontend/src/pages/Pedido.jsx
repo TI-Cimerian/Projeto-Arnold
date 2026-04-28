@@ -1,60 +1,69 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
-import { useParams, useNavigate, NavLink } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
 import api from "../../api/api";
 
 function Pedido() {
   const [abaAtiva, setAbaAtiva] = useState("cliente");
-  const navigate = useNavigate();
   const [pedido, setPedido] = useState(null);
   const [cliente, setCliente] = useState(null);
-  const [maquinas, setMaquinas] = useState([null]);
+  const [maquinas, setMaquinas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+
+  const [statusPedido, setStatusPedido] = useState("");
+  const [atualizandoStatus, setAtualizandoStatus] = useState(false);
+
   const { id } = useParams();
+  const pedidoRef = useRef(null);
+
+  const optionsStatus = ["Aberto", "Termo", "Vendido"];
 
   const formatCurrency = (valor) => {
-    return Number(valor).toLocaleString("pt-BR", {
+    return Number(valor || 0).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
   };
+
   const formatCPF = (cpf) => {
-    if (cliente.pais != "Brasil") {
+    if (!cpf) return "";
+
+    if (cliente?.pais !== "Brasil") {
       return cpf;
     }
-    const cpfFormatado = cpf
+
+    return cpf
+      .replace(/\D/g, "")
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    return cpfFormatado;
   };
 
   const formatTelefone = (telefone) => {
-    if (cliente.pais != "Brasil") {
+    if (!telefone) return "";
+
+    if (cliente?.pais !== "Brasil") {
       return telefone;
     }
-    const telefoneFormatado = telefone
+
+    return telefone
+      .replace(/\D/g, "")
       .replace(/(\d{2})(\d)/, "($1) $2")
       .replace(/(\d{5})(\d)/, "$1-$2");
-    return telefoneFormatado;
   };
 
   useEffect(() => {
     const fetchPedidoDetalhes = async () => {
       try {
+        setLoading(true);
+
         const response = await api.get(`pedidos/${id}`);
+
         setPedido(response.data.pedido);
+        setStatusPedido(response.data.pedido.status || "");
         setCliente(response.data.cliente);
-        setMaquinas(response.data.maquinas);
-        console.log(response.data);
+        setMaquinas(response.data.maquinas || []);
       } catch (err) {
         console.error("Erro ao buscar detalhes do pedido:", err);
         setError("Não foi possível carregar os detalhes do pedido.");
@@ -66,22 +75,60 @@ function Pedido() {
     fetchPedidoDetalhes();
   }, [id]);
 
-  const pedidoRef = useRef(null);
-
   useEffect(() => {
     pedidoRef.current = pedido;
   }, [pedido]);
 
+  const atualizarStatusPedido = async () => {
+    if (!statusPedido) {
+      toast.warning("Selecione um status");
+      return;
+    }
+
+    try {
+      setAtualizandoStatus(true);
+
+      const response = await api.patch(`/pedidos/${id}/status`, {
+        status: statusPedido,
+      });
+
+      setPedido((prev) => ({
+        ...prev,
+        status: response.data.pedido.status,
+      }));
+
+      toast.success("Status atualizado com sucesso");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.error || "Erro ao atualizar status do pedido",
+      );
+    } finally {
+      setAtualizandoStatus(false);
+    }
+  };
+
   if (loading) {
-    return <>Carregando</>;
+    return (
+      <main className="mx-auto mt-12 w-full max-w-7xl px-4 py-6">
+        <p className="text-sm text-slate-500">Carregando...</p>
+      </main>
+    );
   }
 
   if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
+    return (
+      <main className="mx-auto mt-12 w-full max-w-7xl px-4 py-6">
+        <p className="text-sm font-semibold text-red-600">{error}</p>
+      </main>
+    );
   }
 
   if (!pedido) {
-    return <p>Pedido não encontrado.</p>;
+    return (
+      <main className="mx-auto mt-12 w-full max-w-7xl px-4 py-6">
+        <p className="text-sm text-slate-500">Pedido não encontrado.</p>
+      </main>
+    );
   }
 
   return (
@@ -91,17 +138,18 @@ function Pedido() {
           <h1 className="text-2xl font-bold text-slate-900">
             Detalhes do orçamento #{pedido.id}
           </h1>
+
           <p className="text-sm text-slate-500">
             Registro de propostas geradas durante o Arnold
           </p>
-          <NavLink to={"imprimir"} target="blank">
-            <button className="rounded-lg border bg-white mt-3 border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300">
+
+          <NavLink to="imprimir" target="_blank">
+            <button className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300">
               Imprimir
             </button>
           </NavLink>
         </div>
 
-        {/* ABAS */}
         <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
           <button
             onClick={() => setAbaAtiva("cliente")}
@@ -137,18 +185,18 @@ function Pedido() {
           </button>
         </div>
 
-        {/* CONTEÚDO DAS ABAS */}
         {abaAtiva === "cliente" && (
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">
               Detalhes do cliente
             </h2>
+
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Nome
                 </p>
-                <p className="text-sm text-slate-800">{cliente.nome}</p>
+                <p className="text-sm text-slate-800">{cliente?.nome}</p>
               </div>
 
               <div>
@@ -156,7 +204,7 @@ function Pedido() {
                   CPF
                 </p>
                 <p className="text-sm text-slate-800">
-                  {formatCPF(cliente.cpf)}
+                  {formatCPF(cliente?.cpf)}
                 </p>
               </div>
 
@@ -164,7 +212,7 @@ function Pedido() {
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   E-mail
                 </p>
-                <p className="text-sm text-slate-800">{cliente.email}</p>
+                <p className="text-sm text-slate-800">{cliente?.email}</p>
               </div>
 
               <div>
@@ -172,7 +220,7 @@ function Pedido() {
                   Telefone
                 </p>
                 <p className="text-sm text-slate-800">
-                  {formatTelefone(cliente.telefone)}
+                  {formatTelefone(cliente?.telefone)}
                 </p>
               </div>
 
@@ -180,7 +228,9 @@ function Pedido() {
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Empresa
                 </p>
-                <p className="text-sm text-slate-800">{cliente.razao_social}</p>
+                <p className="text-sm text-slate-800">
+                  {cliente?.razao_social}
+                </p>
               </div>
 
               <div>
@@ -188,8 +238,8 @@ function Pedido() {
                   Endereço
                 </p>
                 <p className="text-sm text-slate-800">
-                  {cliente.rua}, {cliente.numero}, {cliente.bairro} -{" "}
-                  {cliente.cidade}/{cliente.estado}, {cliente.pais}
+                  {cliente?.rua}, {cliente?.numero}, {cliente?.bairro} -{" "}
+                  {cliente?.cidade}/{cliente?.estado}, {cliente?.pais}
                 </p>
               </div>
             </div>
@@ -201,6 +251,47 @@ function Pedido() {
             <h2 className="text-lg font-semibold text-slate-900">
               Detalhes do pedido
             </h2>
+
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                <div>
+                  <p className="mb-1 text-xs font-semibold uppercase text-slate-500">
+                    Status do pedido
+                  </p>
+
+                  <select
+                    value={statusPedido}
+                    onChange={(e) => setStatusPedido(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none ring-brand/20 transition focus:ring-2"
+                  >
+                    <option value="">Selecione o status</option>
+
+                    {optionsStatus.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={atualizarStatusPedido}
+                  disabled={atualizandoStatus || statusPedido === pedido.status}
+                  className="h-10 rounded-xl bg-black px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  {atualizandoStatus ? "Salvando..." : "Atualizar status"}
+                </button>
+              </div>
+
+              <p className="mt-2 text-xs text-slate-500">
+                Status atual:{" "}
+                <span className="font-semibold text-slate-700">
+                  {pedido.status || "Não informado"}
+                </span>
+              </p>
+            </div>
+
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
@@ -219,6 +310,7 @@ function Pedido() {
                   {pedido.tipo_pagamento}
                 </p>
               </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Parcelas
@@ -235,6 +327,7 @@ function Pedido() {
                 </p>
                 <p className="text-sm text-slate-800">{pedido.desconto}%</p>
               </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Valor de desconto
@@ -252,17 +345,18 @@ function Pedido() {
                 </p>
                 <p className="text-sm text-slate-800">{pedido.entrada}%</p>
               </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Valor de entrada
                 </p>
                 <p className="text-sm text-slate-800">
-                  {" "}
                   {formatCurrency(
                     pedido.valor_liquido * (pedido.entrada / 100),
                   )}
                 </p>
               </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Acréscimo
@@ -283,11 +377,12 @@ function Pedido() {
                 </p>
                 <p className="text-sm text-slate-800">{pedido.observacao}</p>
               </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">
                   Valor total
                 </p>
-                <p className="text-sm text-slate-800 font-semibold">
+                <p className="text-sm font-semibold text-slate-800">
                   {formatCurrency(pedido.valor_liquido)}
                 </p>
               </div>
@@ -299,6 +394,7 @@ function Pedido() {
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-900">Máquinas</h2>
+
               <span className="text-sm font-semibold text-slate-500">
                 {maquinas.length} item{maquinas.length > 1 ? "s" : ""}
               </span>
@@ -315,18 +411,23 @@ function Pedido() {
                     <th className="px-4 py-3 text-center">Subtotal</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {maquinas.map((item) => (
                     <tr key={item.id} className="border-t border-slate-200">
                       <td className="px-4 py-4 text-center">{item.id}</td>
+
                       <td className="px-4 py-4 text-center">{item.nome}</td>
+
                       <td className="px-4 py-4 text-center">
                         {formatCurrency(item.valor_unitario)}
                       </td>
+
                       <td className="px-4 py-4 text-center">
                         {item.quantidade}
                       </td>
-                      <td className="px-4 py-4 font-medium">
+
+                      <td className="px-4 py-4 text-center font-medium">
                         {formatCurrency(item.valor_unitario * item.quantidade)}
                       </td>
                     </tr>
@@ -336,7 +437,8 @@ function Pedido() {
                     <td colSpan="4" className="px-4 py-4 text-right font-bold">
                       Total
                     </td>
-                    <td className="px-4 py-4 font-bold text-slate-900">
+
+                    <td className="px-4 py-4 text-center font-bold text-slate-900">
                       {formatCurrency(pedido.valor_bruto)}
                     </td>
                   </tr>
